@@ -73,7 +73,7 @@ python train.py --dataset=pose10 --epoch=2000 --adversarial_loss_mode=hinge_v1 -
 #清晰但是不全 
 
 
-#--------------------hingev2
+# ***--------------------hingev2
 python train.py --dataset_name=pose10 --epoch=2000 --adversarial_loss_mode=hinge_v2 --gradient_penalty_mode=none --gradient_penalty_sample_mode=line --batch_size=1 
 python train.py --dataset=pose10 --epoch=2000 --adversarial_loss_mode=hinge_v2 --gradient_penalty_mode=1-gp --gradient_penalty_sample_mode=dragan --batch_size=1 
 #效果好但是动作不全，和v1类似

@@ -19,16 +19,16 @@ import argparse
 parser = argparse.ArgumentParser(description='the training args')
 parser.add_argument('--dataset_name',default='mnist')#choices=['cifar10', 'fashion_mnist', 'mnist', 'celeba', 'pose']
 parser.add_argument('--batch_size',type=int,default=32)
-parser.add_argument('--epochs', type=int, default=100)
+parser.add_argument('--epochs', type=int, default=10)
 parser.add_argument('--lr', type=float, default=0.0002,help='learning_rate')
 parser.add_argument('--beta_1', type=float, default=0.5)
 parser.add_argument('--n_d', type=int, default=1)# d updates per g update
 parser.add_argument('--z_dim', type=int, default=128)
-parser.add_argument('--adversarial_loss_mode', default='gan', choices=['gan', 'hinge_v1', 'hinge_v2', 'lsgan', 'wgan'])
-parser.add_argument('--gradient_penalty_mode', default='none', choices=['none', '1-gp', '0-gp', 'lp'])
+parser.add_argument('--adversarial_loss_mode', default='hinge_v2', choices=['gan', 'hinge_v1', 'hinge_v2', 'lsgan', 'wgan'])
+parser.add_argument('--gradient_penalty_mode', default='0-gp', choices=['none', '1-gp', '0-gp', 'lp'])
 parser.add_argument('--gradient_penalty_sample_mode', default='line', choices=['line', 'real', 'fake', 'dragan'])
 parser.add_argument('--gradient_penalty_weight', type=float, default=10.0)
-parser.add_argument('--experiment_name', default='none')
+parser.add_argument('--experiment_name', default='mnist-1')
 parser.add_argument('--gradient_penalty_d_norm', default='layer_norm', choices=['instance_norm', 'layer_norm'])
 parser.add_argument('--img_size',type=int,default=64)
 args = parser.parse_args()
@@ -198,12 +198,9 @@ for ep_ in tqdm.trange(args.epochs):#epoch:n*batch
             x_fake = sample(z)
             #x_fake = np.transpose(x_fake.data.cpu().numpy(), (0, 2, 3, 1))#(n,w,h,c)
             torchvision.utils.save_image(x_fake,sample_dir+'/%d.jpg'%(it_g), nrow=10)
-    # save checkpoint
-    if ep*10 == 0:
-        torch.save({'ep': ep, 'it_d': it_d, 'it_g': it_g,
-                              'D': D.state_dict(),
-                              'G': G.state_dict(),
-                              'D_optimizer': D_optimizer.state_dict(),
-                              'G_optimizer': G_optimizer.state_dict()},
-                              os.path.join(ckpt_dir, '/Epoch_(%d).ckpt' % ep)
-                              )
+
+# save checkpoint
+with torch.no_grad():
+	G.eval()
+	D.eval()
+	torch.save({'epoch': ep + 1,'G': G.state_dict(),'D': D.state_dict()},'%s/Epoch_(%d).ckpt' % (ckpt_dir, ep + 1))#save model
