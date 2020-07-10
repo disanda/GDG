@@ -17,15 +17,15 @@ import os
 # ==============================================================================
 import argparse
 parser = argparse.ArgumentParser(description='the training args')
-parser.add_argument('--dataset_name',default='mnist')#choices=['cifar10', 'fashion_mnist', 'mnist', 'celeba', 'pose']
+parser.add_argument('--dataset_name',default='mnist-2')#choices=['cifar10', 'fashion_mnist', 'mnist', 'celeba', 'pose']
 parser.add_argument('--batch_size',type=int,default=32)
 parser.add_argument('--epochs', type=int, default=10)
 parser.add_argument('--lr', type=float, default=0.0002,help='learning_rate')
 parser.add_argument('--beta_1', type=float, default=0.5)
 parser.add_argument('--n_d', type=int, default=1)# d updates per g update
 parser.add_argument('--z_dim', type=int, default=128)
-parser.add_argument('--adversarial_loss_mode', default='hinge_v2', choices=['gan', 'hinge_v1', 'hinge_v2', 'lsgan', 'wgan'])
-parser.add_argument('--gradient_penalty_mode', default='0-gp', choices=['none', '1-gp', '0-gp', 'lp'])
+parser.add_argument('--adversarial_loss_mode', default='gan', choices=['gan', 'hinge_v1', 'hinge_v2', 'lsgan', 'wgan'])
+parser.add_argument('--gradient_penalty_mode', default='none', choices=['none', '1-gp', '0-gp', 'lp'])
 parser.add_argument('--gradient_penalty_sample_mode', default='line', choices=['line', 'real', 'fake', 'dragan'])
 parser.add_argument('--gradient_penalty_weight', type=float, default=10.0)
 parser.add_argument('--experiment_name', default='mnist-1')
