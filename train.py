@@ -17,7 +17,9 @@ import os
 # ==============================================================================
 import argparse
 parser = argparse.ArgumentParser(description='the training args')
-parser.add_argument('--dataset_name',default='mnist-2')#choices=['cifar10', 'fashion_mnist', 'mnist', 'celeba', 'pose']
+
+parser.add_argument('--experiment_name', default='mnist-2')
+parser.add_argument('--dataset_name',default='mnist')#choices=['cifar10', 'fashion_mnist', 'mnist', 'celeba', 'pose']
 parser.add_argument('--batch_size',type=int,default=32)
 parser.add_argument('--epochs', type=int, default=10)
 parser.add_argument('--lr', type=float, default=0.0002,help='learning_rate')
@@ -28,7 +30,6 @@ parser.add_argument('--adversarial_loss_mode', default='gan', choices=['gan', 'h
 parser.add_argument('--gradient_penalty_mode', default='none', choices=['none', '1-gp', '0-gp', 'lp'])
 parser.add_argument('--gradient_penalty_sample_mode', default='line', choices=['line', 'real', 'fake', 'dragan'])
 parser.add_argument('--gradient_penalty_weight', type=float, default=10.0)
-parser.add_argument('--experiment_name', default='mnist-1')
 parser.add_argument('--gradient_penalty_d_norm', default='layer_norm', choices=['instance_norm', 'layer_norm'])
 parser.add_argument('--img_size',type=int,default=64)
 args = parser.parse_args()
