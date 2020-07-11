@@ -57,8 +57,12 @@ class ConvGenerator(nn.Module):
 
         self.net = nn.Sequential(*layers)
 
-    def forward(self, z):
-        x = self.net(z)
+    def forward(self, z , c=False):
+        if c == False:
+            x = self.net(z)
+        else:
+            z = torch.cat([x,z],axis=1)
+            x = self.net(z)
         return x
 
 
@@ -96,6 +100,7 @@ class ConvDiscriminator(nn.Module):
         layers.append(nn.Conv2d(d, 1, kernel_size=4, stride=1, padding=0))
 
         self.net = nn.Sequential(*layers)
+        self.c_logit = nn.Linear(dim, c_dim)
 
     def forward(self, x):
         y = self.net(x)

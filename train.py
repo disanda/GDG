@@ -17,15 +17,13 @@ import os
 # ==============================================================================
 import argparse
 parser = argparse.ArgumentParser(description='the training args')
-
-parser.add_argument('--experiment_name', default='mnist-2')
+parser.add_argument('--z_dim', type=int, default=128)
 parser.add_argument('--dataset_name',default='mnist')#choices=['cifar10', 'fashion_mnist', 'mnist', 'celeba', 'pose']
 parser.add_argument('--batch_size',type=int,default=32)
 parser.add_argument('--epochs', type=int, default=10)
-parser.add_argument('--lr', type=float, default=0.0002,help='learning_rate')
+#parser.add_argument('--lr', type=float, default=0.0002,help='learning_rate')
 parser.add_argument('--beta_1', type=float, default=0.5)
 parser.add_argument('--n_d', type=int, default=1)# d updates per g update
-parser.add_argument('--z_dim', type=int, default=128)
 parser.add_argument('--adversarial_loss_mode', default='gan', choices=['gan', 'hinge_v1', 'hinge_v2', 'lsgan', 'wgan'])
 parser.add_argument('--gradient_penalty_mode', default='none', choices=['none', '1-gp', '0-gp', 'lp'])
 parser.add_argument('--gradient_penalty_sample_mode', default='line', choices=['line', 'real', 'fake', 'dragan'])
@@ -33,6 +31,10 @@ parser.add_argument('--gradient_penalty_weight', type=float, default=10.0)
 parser.add_argument('--gradient_penalty_d_norm', default='layer_norm', choices=['instance_norm', 'layer_norm'])
 parser.add_argument('--img_size',type=int,default=64)
 args = parser.parse_args()
+
+args.experiment_name = 'mnist-3-CGAN'
+args.lr = 0.0002
+
 
 # output_dir
 if args.experiment_name == 'none':
@@ -79,6 +81,7 @@ elif args.dataset_name.find('pose') != -1:  # 32x32
 # =                                   model                                    =
 # ==============================================================================
 
+
 # setup the normalization function for discriminator
 if args.gradient_penalty_mode == 'none':
     d_norm = 'batch_norm'
@@ -99,65 +102,9 @@ G_optimizer = torch.optim.Adam(G.parameters(), lr=args.lr, betas=(args.beta_1, 0
 D_optimizer = torch.optim.Adam(D.parameters(), lr=args.lr, betas=(args.beta_1, 0.999))
 
 # ==============================================================================
-# =                                 train step                                 =
-# ==============================================================================
-
-def train_G():
-    G.train()
-    D.train()
-
-    z = torch.randn(args.batch_size, args.z_dim, 1, 1).to(device)
-    x_fake = G(z)
-
-    x_fake_d_logit = D(x_fake)
-    G_loss = g_loss_fn(x_fake_d_logit)
-
-    G.zero_grad()
-    G_loss.backward()
-    G_optimizer.step()
-
-    return {'g_loss': G_loss}
-
-
-def train_D(x_real):
-    G.train()
-    D.train()
-
-    z = torch.randn(args.batch_size, args.z_dim, 1, 1).to(device)
-    x_fake = G(z).detach()
-
-    x_real_d_logit = D(x_real)
-    x_fake_d_logit = D(x_fake)
-
-    x_real_d_loss, x_fake_d_loss = d_loss_fn(x_real_d_logit, x_fake_d_logit)
-    gp_value = gp.gradient_penalty(functools.partial(D), x_real, x_fake, gp_mode=args.gradient_penalty_mode, sample_mode=args.gradient_penalty_sample_mode)
-
-    D_loss = (x_real_d_loss + x_fake_d_loss) + gp_value * args.gradient_penalty_weight
-
-    D.zero_grad()
-    D_loss.backward()
-    D_optimizer.step()
-
-    return {'d_loss': x_real_d_loss + x_fake_d_loss, 'gp': gp_value}
-
-# ==============================================================================
 # =                                    run                                     =
 # ==============================================================================
-
-# load checkpoint if exists
-ckpt_dir = os.path.join(output_dir, 'checkpoints')
-if not os.path.exists(ckpt_dir):
-    os.mkdir(ckpt_dir)
-try:
-    ckpt_path = os.path.join(ckpt_dir, 'xxx.ckpt')
-    ckpt=torch.load(ckpt_path)
-    ep, it_d, it_g = ckpt['ep'], ckpt['it_d'], ckpt['it_g']
-    D.load_state_dict(ckpt['D'])
-    G.load_state_dict(ckpt['G'])
-    D_optimizer.load_state_dict(ckpt['D_optimizer'])
-    G_optimizer.load_state_dict(ckpt['G_optimizer'])
-except:
-    ep, it_d, it_g = 0, 0, 0
+ep, it_d, it_g = 0, 0, 0
 
 # sample
 sample_dir = os.path.join(output_dir, 'samples_training')
@@ -175,21 +122,48 @@ def sample(z):
 
 for ep_ in tqdm.trange(args.epochs):#epoch:n*batch
     ep = ep+1
-    for x_real in tqdm.tqdm(data_loader, desc='Inner Epoch Loop'):#batch_size
+    G.train()
+    D.train()
+    for i in tqdm.tqdm(data_loader, desc='Inner Epoch Loop'):#batch_size
         if args.dataset_name == 'cifar10' or 'mnist':#数据有标签
-            images,labels = x_real
-            images = images.to(device)
+            x,c = i
+            x = x.to(device)
         else:
-            images = x_real
-            images = images.to(device)
+            x = i
+            x = x.to(device)
 
-        D_loss_dict = train_D(images)
+#training D
+        z = torch.randn(args.batch_size, args.z_dim, 1, 1).to(device)
+        x_fake = G(z).detach()
+        x_real_score = D(x)
+        x_fake_score = D(x_fake)
+        bce = torch.nn.BCEWithLogitsLoss()
+        r_loss = bce(x_real_score, torch.ones_like(x_real_score))
+        f_loss = bce(x_fake_score, torch.zeros_like(x_fake_score))
+        gp_value = gp.gradient_penalty(functools.partial(D), x, x_fake, gp_mode=args.gradient_penalty_mode, sample_mode=args.gradient_penalty_sample_mode)
+        D_loss = (r_loss + f_loss) + gp_value * args.gradient_penalty_weight
+        D.zero_grad()
+        D_loss.backward()
+        D_optimizer.step()
+
+        D_loss_dict={'d_loss': r_loss + f_loss, 'gp': gp_value}
         it_d += 1
         for k, v in D_loss_dict.items():
             writer.add_scalar('D/%s' % k, v.data.cpu().numpy(), global_step=it_d)
 
+#training G
         if it_d % args.n_d == 0:
-            G_loss_dict = train_G()
+            G_loss_dict = train_G(labels)
+            #CGAN: (x,c)->G->s
+            z = torch.randn(args.batch_size, args.z_dim, 1, 1).to(device)
+            x_fake = G(z,c)
+            x_fake_score = D(x_fake,c)
+            G_loss = g_loss_fn(x_fake_score)
+            G.zero_grad()
+            G_loss.backward()
+            G_optimizer.step()
+            G_loss_dict = {'g_loss': G_loss}
+
             it_g += 1
             for k, v in G_loss_dict.items():
                 writer.add_scalar('G/%s' % k, v.data.cpu().numpy(), global_step=it_g)
