@@ -42,7 +42,8 @@ norm = 'none' #['none', 'batch_norm', 'instance_norm']
 experiment_name = args.experiment_name+loss_mode
 
 # save settings
-os.mkdir('./output/%s' % experiment_name)
+if not os.path.exists('./output/%s' % experiment_name)
+	os.mkdir('./output/%s' % experiment_name)
 with open('./output/%s/setting.txt' % experiment_name, 'w') as f:
     f.write(json.dumps(vars(args), indent=4, separators=(',', ':')))
 
@@ -76,7 +77,8 @@ g_optimizer = torch.optim.Adam(G.parameters(), lr=g_learning_rate, betas=(0.5, 0
 
 # load checkpoint
 ckpt_dir = './output/%s/checkpoints' % experiment_name
-os.mkdir(ckpt_dir)
+if not os.path.exists(ckpt_dir):
+	os.mkdir(ckpt_dir)
 try:
     ckpt = torchlib.load_checkpoint(ckpt_dir)
     start_ep = ckpt['epoch']
@@ -145,7 +147,8 @@ for ep in range(start_ep, epoch):
             G.eval()
             x_f_sample = (G(z_sample, c_sample) + 1) / 2.0 #[-1,1]->[0,1]
             save_dir = './output/%s/sample_training' % experiment_name
-            os.mkdir(save_dir)
+            if not os.path.exists(save_dir):
+            	os.mkdir(save_dir)
             torchvision.utils.save_image(x_f_sample, '%s/Epoch_(%d)_(%dof%d).jpg' % (save_dir, ep, i + 1, len(train_loader)), nrow=10)
 
     torchlib.save_checkpoint({'epoch': ep + 1,
