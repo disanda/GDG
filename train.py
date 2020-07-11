@@ -135,9 +135,9 @@ for ep_ in tqdm.trange(args.epochs):#epoch:n*batch
 
 #training D
         z = torch.randn(args.batch_size, args.z_dim-10, 1, 1).to(device)
-        x_fake = G(z,c).detach()
+        x_fake_d = G(z,c).detach()
         x_real_score,_ = D(x,c)
-        x_fake_score,_ = D(x_fake,c)
+        x_fake_score,_ = D(x_fake_d,c)
         bce = torch.nn.BCEWithLogitsLoss()
         r_loss = bce(x_real_score, torch.ones_like(x_real_score))
         f_loss = bce(x_fake_score, torch.zeros_like(x_fake_score))
@@ -156,9 +156,9 @@ for ep_ in tqdm.trange(args.epochs):#epoch:n*batch
         if it_d % args.n_d == 0:
             #CGAN: (x,c)->G->s
             z = torch.randn(args.batch_size, args.z_dim-10, 1, 1).to(device)
-            x_fake = G(z,c)
-            x_fake_score,_ = D(x_fake,c)
-            G_loss = g_loss_fn(x_fake_score)
+            x_fake_g = G(z,c)
+            x_fake_score,_ = D(x_fake_g,c)
+            G_loss = bce(x_fake_score, torch.ones_like(x_fake_score))
             G.zero_grad()
             G_loss.backward()
             G_optimizer.step()
