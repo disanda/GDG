@@ -89,8 +89,8 @@ else:  # cannot use batch normalization with gradient penalty
     d_norm = args.gradient_penalty_d_norm
 
 # networks
-G = model.Generator_v1(args.z_dim, shape[-1], n_upsamplings=n_G_upsamplings).to(device)
-D = model.Discriminator_v1(shape[-1], n_downsamplings=n_D_downsamplings, norm=d_norm).to(device)
+G = model.Generator_v1(args.z_dim, shape[-1]).to(device)
+D = model.Discriminator_v1(shape[-1]).to(device)
 print(G)
 print(D)
 
