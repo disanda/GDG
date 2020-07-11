@@ -1,6 +1,9 @@
 import torch
 import torch.nn as nn
 import torchlib
+import sys 
+sys.path.append("..")
+import loss
 
 # ==============================================================================
 # =                                 models CGAN                                =
@@ -37,8 +40,8 @@ class Discriminator(nn.Module):
     def __init__(self, x_dim, c_dim, dim=96, norm='none', weight_norm='spectral_norm'):
         super().__init__()
 
-        norm_fn = _get_norm_fn_2d(norm)
-        weight_norm_fn = _get_weight_norm_fn(weight_norm)
+        norm_fn = loss._get_norm_fn_2d(norm)
+        weight_norm_fn = loss._get_weight_norm_fn(weight_norm)
 
         def conv_norm_lrelu(in_dim, out_dim, kernel_size=3, stride=1, padding=1):
             return nn.Sequential(
