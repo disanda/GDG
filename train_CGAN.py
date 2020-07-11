@@ -31,13 +31,13 @@ parser.add_argument('--batch_size', dest='batch_size', type=int, default=64)
 parser.add_argument('--d_learning_rate', dest='d_learning_rate', type=float, default=0.0002)
 parser.add_argument('--g_learning_rate', dest='g_learning_rate', type=float, default=0.001)
 parser.add_argument('--n_d', dest='n_d', type=int, help='# of d updates per g update', default=1)
-parser.add_argument('--loss_mode', dest='loss_mode', choices=['gan', 'lsgan', 'wgan', 'hinge_v1', 'hinge_v2'], default='hinge_v2')
+parser.add_argument('--loss_mode', dest='loss_mode', choices=['gan', 'lsgan', 'wgan', 'hinge_v1', 'hinge_v2'], default='gan')
 parser.add_argument('--gp_mode', dest='gp_mode', choices=['none', 'dragan', 'wgan-gp'], default='none')
 parser.add_argument('--gp_coef', dest='gp_coef', type=float, default=1.0)
 parser.add_argument('--norm', dest='norm', choices=['none', 'batch_norm', 'instance_norm'], default='none')
 parser.add_argument('--weight_norm', dest='weight_norm', choices=['none', 'spectral_norm', 'weight_norm'], default='spectral_norm')
 # others
-parser.add_argument('--experiment_name', dest='experiment_name', default='CGAN_hinge_v2')
+parser.add_argument('--experiment_name', dest='experiment_name', default='CGAN_gan')
 
 # parse arguments
 args = parser.parse_args()
