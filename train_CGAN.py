@@ -35,7 +35,7 @@ g_learning_rate = 0.001
 n_d = 1
 # loss
 loss_mode = 'hinge_v1' #choices=['gan', 'lsgan', 'wgan', 'hinge_v1', 'hinge_v2']
-gp_mode = args.gp_mode #choices=['none', 'dragan', 'wgan-gp'], default='none']
+gp_mode = 'none' #choices=['none', 'dragan', 'wgan-gp'], default='none']
 gp_coef = 1.0 
 norm = 'none' #['none', 'batch_norm', 'instance_norm']
 # ohters
