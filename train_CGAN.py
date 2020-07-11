@@ -37,7 +37,7 @@ parser.add_argument('--gp_coef', dest='gp_coef', type=float, default=1.0)
 parser.add_argument('--norm', dest='norm', choices=['none', 'batch_norm', 'instance_norm'], default='none')
 parser.add_argument('--weight_norm', dest='weight_norm', choices=['none', 'spectral_norm', 'weight_norm'], default='spectral_norm')
 # others
-parser.add_argument('--experiment_name', dest='experiment_name', default='CGAN_default')
+parser.add_argument('--experiment_name', dest='experiment_name', default='CGAN_hinge_v2')
 
 # parse arguments
 args = parser.parse_args()
@@ -80,7 +80,8 @@ transform = tforms.Compose(
      tforms.Normalize(mean=[0.5] * 3, std=[0.5] * 3)]
 )
 train_loader = torch.utils.data.DataLoader(
-    dataset=dsets.FashionMNIST('data/FashionMNIST', train=True, download=True, transform=transform),
+    #dataset=dsets.FashionMNIST('data/FashionMNIST', train=True, download=True, transform=transform),
+    dataset=torchvision.datasets.MNIST('./data/', train=True, download=True, transform=transform),
     batch_size=batch_size,
     shuffle=True,
     num_workers=4,
@@ -173,8 +174,7 @@ for ep in range(start_ep, epoch):
         # sample
         if step % 100 == 0:
             G.eval()
-            x_f_sample = (G(z_sample, c_sample) + 1) / 2.0
-
+            x_f_sample = (G(z_sample, c_sample) + 1) / 2.0 #[-1,1]->[0,1]
             save_dir = './output/%s/sample_training' % experiment_name
             pylib.mkdir(save_dir)
             torchvision.utils.save_image(x_f_sample, '%s/Epoch_(%d)_(%dof%d).jpg' % (save_dir, ep, i + 1, len(train_loader)), nrow=10)
