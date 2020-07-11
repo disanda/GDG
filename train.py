@@ -90,7 +90,7 @@ else:  # cannot use batch normalization with gradient penalty
 
 # networks
 G = model.Generator_v1(args.z_dim).to(device)
-D = model.Discriminator_v1(shape[-1]).to(device)
+D = model.Discriminator_v1(shape[-1]+10).to(device)
 print(G)
 print(D)
 
@@ -136,8 +136,8 @@ for ep_ in tqdm.trange(args.epochs):#epoch:n*batch
 #training D
         z = torch.randn(args.batch_size, args.z_dim-10, 1, 1).to(device)
         x_fake = G(z,c).detach()
-        x_real_score,_ = D(x)
-        x_fake_score,_ = D(x_fake)
+        x_real_score,_ = D(x,c)
+        x_fake_score,_ = D(x_fake,c)
         bce = torch.nn.BCEWithLogitsLoss()
         r_loss = bce(x_real_score, torch.ones_like(x_real_score))
         f_loss = bce(x_fake_score, torch.zeros_like(x_fake_score))
