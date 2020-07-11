@@ -32,7 +32,7 @@ parser.add_argument('--gradient_penalty_d_norm', default='layer_norm', choices=[
 parser.add_argument('--img_size',type=int,default=64)
 args = parser.parse_args()
 
-args.experiment_name = 'mnist-3-CGAN'
+args.experiment_name = 'mnist-v1-GAN'
 args.lr = 0.0002
 args.z_dim = 128
 
@@ -135,8 +135,9 @@ for ep_ in tqdm.trange(args.epochs):#epoch:n*batch
             x = i
             x = x.to(device)
 
+        c = False
 #training D
-        z = torch.randn(args.batch_size, args.z_dim-10, 1, 1).to(device)
+        z = torch.randn(args.batch_size, args.z_dim, 1, 1).to(device)
         x_fake_d = G(z,c).detach()
         x_real_score,_ = D(x,c)
         x_fake_score,_ = D(x_fake_d,c)
@@ -157,7 +158,7 @@ for ep_ in tqdm.trange(args.epochs):#epoch:n*batch
 #training G
         if it_d % args.n_d == 0:
             #CGAN: (x,c)->G->s
-            z = torch.randn(args.batch_size, args.z_dim-10, 1, 1).to(device)
+            z = torch.randn(args.batch_size, args.z_dim, 1, 1).to(device)
             x_fake_g = G(z,c)
             x_fake_score,_ = D(x_fake_g,c)
             G_loss = bce(x_fake_score, torch.ones_like(x_fake_score))
@@ -172,9 +173,9 @@ for ep_ in tqdm.trange(args.epochs):#epoch:n*batch
 
 # sample
         if it_g % 100 == 0:
-            latent_variables = torch.randn(100, args.z_dim-10, 1, 1)
-            labels = torch.tensor(np.eye(10)[np.array([0,1,2,3,4,5,6,7,8,9]*10)])
-            x_fake = sample(latent_variables,labels)
+            latent_variables = torch.randn(100, args.z_dim, 1, 1)
+            #labels = torch.tensor(np.eye(10)[np.array([0,1,2,3,4,5,6,7,8,9]*10)])
+            x_fake = sample(latent_variables,c)
             #x_fake = np.transpose(x_fake.data.cpu().numpy(), (0, 2, 3, 1))#(n,w,h,c)
             torchvision.utils.save_image(x_fake,sample_dir+'/%d.jpg'%(it_g), nrow=10)
 
