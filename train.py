@@ -128,6 +128,7 @@ for ep_ in tqdm.trange(args.epochs):#epoch:n*batch
         if args.dataset_name == 'cifar10' or 'mnist':#数据有标签
             x,c = i
             x = x.to(device)
+            c = torch.tensor(np.eye(d_dim)[c.numpy()], dtype=c.dtype).to(device)#该操作类似one-hot c_dense是一个长度为batch_size=64的标签列表,维度为[-1,10]
         else:
             x = i
             x = x.to(device)
