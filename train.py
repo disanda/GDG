@@ -116,9 +116,9 @@ writer = tensorboardX.SummaryWriter(os.path.join(output_dir, 'summaries'))
 z = torch.randn(100, args.z_dim, 1, 1).to(device)  # a fixed noise for sampling
 
 @torch.no_grad()
-def sample(z):
+def sample(z,c=False):
     G.eval()
-    return G(z)
+    return G(z,c)
 
 for ep_ in tqdm.trange(args.epochs):#epoch:n*batch
     ep = ep+1
@@ -168,7 +168,7 @@ for ep_ in tqdm.trange(args.epochs):#epoch:n*batch
             for k, v in G_loss_dict.items():
                 writer.add_scalar('G/%s' % k, v.data.cpu().numpy(), global_step=it_g)
 
-        # sample
+# sample
         if it_g % 100 == 0:
             latent_variables = torch.randn(100, args.z_dim-10, 1, 1)
             labels = torch.tensor(np.eye(10)[np.array([0,1,2,3,4,5,6,7,8,9]*10)])
