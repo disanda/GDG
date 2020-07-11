@@ -141,7 +141,7 @@ for ep_ in tqdm.trange(args.epochs):#epoch:n*batch
         bce = torch.nn.BCEWithLogitsLoss()
         r_loss = bce(x_real_score, torch.ones_like(x_real_score))
         f_loss = bce(x_fake_score, torch.zeros_like(x_fake_score))
-        gp_value = gp.gradient_penalty(functools.partial(D), x, x_fake, gp_mode=args.gradient_penalty_mode, sample_mode=args.gradient_penalty_sample_mode)
+        gp_value = gp.gradient_penalty(functools.partial(D), x, x_fake_d, gp_mode=args.gradient_penalty_mode, sample_mode=args.gradient_penalty_sample_mode)
         D_loss = (r_loss + f_loss) + gp_value * args.gradient_penalty_weight
         D.zero_grad()
         D_loss.backward()
