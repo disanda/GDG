@@ -11,7 +11,6 @@ import torchvision.datasets as dsets
 import torchvision.transforms as tforms
 import torchlib
 import data
-import models
 
 # ==============================================================================
 # =                                    param                                   =
@@ -59,6 +58,7 @@ c_dim = 10
 
 train_loader = data.getDataloader(batch_size,use_gpu)
 
+import models.CGAN
 # model
 D = models.CGAN.Discriminator(x_dim=3, c_dim=c_dim, norm=norm, weight_norm=weight_norm).to(device)
 G = models.CGAN.Generator(z_dim=z_dim, c_dim=c_dim).to(device)
