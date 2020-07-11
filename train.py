@@ -90,7 +90,7 @@ else:  # cannot use batch normalization with gradient penalty
 
 # networks
 G = model.Generator_v1(args.z_dim).to(device)
-D = model.Discriminator_v1(shape[-1]+10).to(device)
+D = model.Discriminator_v1(shape[-1]).to(device)
 print(G)
 print(D)
 
