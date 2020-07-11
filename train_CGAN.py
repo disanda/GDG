@@ -1,6 +1,6 @@
 import argparse
 import json
-import model
+import loss
 import numpy as np
 import os
 import PIL.Image as Image
@@ -64,7 +64,7 @@ D = models.CGAN.Discriminator(x_dim=3, c_dim=c_dim, norm=norm, weight_norm=args.
 G = models.CGAN.Generator(z_dim=z_dim, c_dim=c_dim).to(device)
 
 # gan loss function
-d_loss_fn, g_loss_fn = model.get_losses_fn(loss_mode)
+d_loss_fn, g_loss_fn = loss.get_losses_fn(loss_mode)
 
 # optimizer
 d_optimizer = torch.optim.Adam(D.parameters(), lr=d_learning_rate, betas=(0.5, 0.999))

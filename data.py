@@ -12,7 +12,7 @@ import torchvision
 
 # data
 transform1 = transforms.Compose(
-    [transforms.Scale(size=(32, 32), interpolation=Image.BICUBIC),
+    [transforms.Resize(size=(32, 32), interpolation=Image.BICUBIC),
      transforms.ToTensor(),
      transforms.Lambda(lambda x: torch.cat((x, x, x), dim=0)),
      transforms.Normalize(mean=[0.5] * 3, std=[0.5] * 3)]
