@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import loss_norm_gp
 
 #---------------------------------第1版------------------------------
 #kernel_size是4，stride是1-2-2-2-2, padding是0-1-1-1-1
