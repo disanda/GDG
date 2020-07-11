@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 
 #---------------------------------第1版------------------------------
+#--------CGAN--------G: (z,c)-> f -> x'
 #kernel_size是4，stride是1-2-2-2-2, padding是0-1-1-1-1
 class Generator_v1(nn.Module):
     def __init__(self,x_dim,c_dim=0):
@@ -33,7 +34,6 @@ class Generator_v1(nn.Module):
         self.convT=nn.ConvTranspose2d(64,  1,  kernel_size=4, stride=2, padding=1)
         self.tanh=nn.Tanh()
         #self.LRelu=nn.LeakyReLU()
-
     def forward(self, z, c=False):
         # z: (N, z_dim), c: (N, c_dim) or bool
         if type(c) == type(False):
@@ -46,7 +46,7 @@ class Generator_v1(nn.Module):
         y = self.block4(y) # 16*16-->32*32
         y = self.tanh(self.convT(y))# 32*32-->64*64
         return y
-
+#--------CGAN--------D: (z,c)-> f -> s
 class Discriminator_v1(nn.Module):
     def __init__(self,x_dim,c_dim=0):
         super().__init__()

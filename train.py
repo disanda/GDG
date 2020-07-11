@@ -89,7 +89,7 @@ else:  # cannot use batch normalization with gradient penalty
     d_norm = args.gradient_penalty_d_norm
 
 # networks
-G = model.Generator_v1(args.z_dim, shape[-1]).to(device)
+G = model.Generator_v1(args.z_dim).to(device)
 D = model.Discriminator_v1(shape[-1]).to(device)
 print(G)
 print(D)
@@ -134,9 +134,9 @@ for ep_ in tqdm.trange(args.epochs):#epoch:n*batch
 
 #training D
         z = torch.randn(args.batch_size, args.z_dim-10, 1, 1).to(device)
-        x_fake = G(z).detach()
-        x_real_score = D(x)
-        x_fake_score = D(x_fake)
+        x_fake = G(z,c).detach()
+        x_real_score,_ = D(x)
+        x_fake_score,_ = D(x_fake)
         bce = torch.nn.BCEWithLogitsLoss()
         r_loss = bce(x_real_score, torch.ones_like(x_real_score))
         f_loss = bce(x_fake_score, torch.zeros_like(x_fake_score))
@@ -157,7 +157,7 @@ for ep_ in tqdm.trange(args.epochs):#epoch:n*batch
             #CGAN: (x,c)->G->s
             z = torch.randn(args.batch_size, args.z_dim-10, 1, 1).to(device)
             x_fake = G(z,c)
-            x_fake_score = D(x_fake,c)
+            x_fake_score,_ = D(x_fake,c)
             G_loss = g_loss_fn(x_fake_score)
             G.zero_grad()
             G_loss.backward()
