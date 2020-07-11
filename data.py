@@ -5,6 +5,7 @@ import scipy.misc
 import imageio
 import matplotlib.pyplot as plt
 from torchvision import datasets, transforms
+from PIL import Image
 
 #-------------------one-channel dataset-------------
 
