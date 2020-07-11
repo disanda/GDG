@@ -42,7 +42,7 @@ norm = 'none' #['none', 'batch_norm', 'instance_norm']
 experiment_name = args.experiment_name+loss_mode
 
 # save settings
-if not os.path.exists('./output/%s' % experiment_name)
+if not os.path.exists('./output/%s' % experiment_name):
 	os.mkdir('./output/%s' % experiment_name)
 with open('./output/%s/setting.txt' % experiment_name, 'w') as f:
     f.write(json.dumps(vars(args), indent=4, separators=(',', ':')))
