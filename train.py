@@ -154,7 +154,6 @@ for ep_ in tqdm.trange(args.epochs):#epoch:n*batch
 
 #training G
         if it_d % args.n_d == 0:
-            G_loss_dict = train_G(labels)
             #CGAN: (x,c)->G->s
             z = torch.randn(args.batch_size, args.z_dim-10, 1, 1).to(device)
             x_fake = G(z,c)
