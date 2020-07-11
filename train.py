@@ -135,7 +135,6 @@ for ep_ in tqdm.trange(args.epochs):#epoch:n*batch
         else:
             x = i
             x = x.to(device)
-
         c = False
 #training D
         z = torch.randn(args.batch_size, args.z_dim, 1, 1).to(device)
