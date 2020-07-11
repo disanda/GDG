@@ -40,8 +40,6 @@ class Generator_v1(nn.Module):
            y=z
         else:
            c = c.view(c.size(0), c.size(1), 1, 1) * torch.ones([c.size(0), c.size(1), z.size(2), z.size(3)], dtype=z.dtype, device=z.device)
-           print(z.type)
-           print(c.type)
            y = torch.cat([z, c], axis=1)
         y = self.block1(y.view(y.size(0), y.size(1), 1, 1)) #1*1-->4*4,out_dim=512
         y = self.block2(y) # 4*4-->8*8
