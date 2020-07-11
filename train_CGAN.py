@@ -11,6 +11,7 @@ import torchvision.datasets as dsets
 import torchvision.transforms as tforms
 import torchlib
 import data
+import models
 
 # ==============================================================================
 # =                                    param                                   =
@@ -58,8 +59,8 @@ c_dim = 10
 train_loader = data.getDataloader(batch_size,use_gpu)
 
 # model
-D = model.DiscriminatorCGAN(x_dim=3, c_dim=c_dim, norm=norm, weight_norm=weight_norm).to(device)
-G = model.GeneratorCGAN(z_dim=z_dim, c_dim=c_dim).to(device)
+D = models.CGAN.Discriminator(x_dim=3, c_dim=c_dim, norm=norm, weight_norm=weight_norm).to(device)
+G = models.CGAN.Generator(z_dim=z_dim, c_dim=c_dim).to(device)
 
 # gan loss function
 d_loss_fn, g_loss_fn = model.get_losses_fn(loss_mode)
