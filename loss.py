@@ -107,15 +107,11 @@ def gradient_penalty(f, real, fake, mode):
 # ==============================================================================
 # =                                    utils                                   =
 # ==============================================================================
-
-
-
 class NoOp(nn.Module):
     def __init__(self, *args, **keyword_args):
         super(NoOp, self).__init__()
     def forward(self, x):
         return x
-
 
 class Reshape(nn.Module):
     def __init__(self, *new_shape):
@@ -125,12 +121,8 @@ class Reshape(nn.Module):
         new_shape = (x.size(i) if self._new_shape[i] == 0 else self._new_shape[i] for i in range(len(self._new_shape)))
         return x.view(*new_shape)
 
-
 def identity(x, *args, **keyword_args):
     return x
-
-
-
 
 def _get_norm_fn_2d(norm):  # 2d
     if norm == 'batch_norm':

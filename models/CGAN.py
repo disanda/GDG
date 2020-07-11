@@ -64,7 +64,7 @@ class Discriminator(nn.Module):
             conv_norm_lrelu(dim * 2, dim * 2, kernel_size=1, stride=1, padding=0),  # (N, dim*2, 6, 6)
 
             nn.AvgPool2d(kernel_size=6),  # (N, dim*2, 1, 1)
-            torchlib.Reshape(-1, dim * 2),  # (N, dim*2)
+            loss.Reshape(-1, dim * 2),  # (N, dim*2)
             weight_norm_fn(nn.Linear(dim * 2, 1))  # (N, 1)
         )
 
