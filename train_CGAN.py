@@ -60,7 +60,7 @@ train_loader = data.getDataloader(batch_size,use_gpu)
 
 import models.CGAN
 # model
-D = models.CGAN.Discriminator(x_dim=3, c_dim=c_dim, norm=norm, weight_norm=weight_norm).to(device)
+D = models.CGAN.Discriminator(x_dim=3, c_dim=c_dim, norm=norm, weight_norm=args.weight_norm).to(device)
 G = models.CGAN.Generator(z_dim=z_dim, c_dim=c_dim).to(device)
 
 # gan loss function
