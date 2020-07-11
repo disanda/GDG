@@ -171,7 +171,7 @@ for ep_ in tqdm.trange(args.epochs):#epoch:n*batch
         # sample
         if it_g % 100 == 0:
             latent_variables = torch.randn(100, args.z_dim-10, 1, 1)
-            labels = torch.tensor(np.eye(10)[np.array([1,2,3,4,5,6,7,8,9,10]*10)])
+            labels = torch.tensor(np.eye(10)[np.array([0,1,2,3,4,5,6,7,8,9]*10)])
             x_fake = sample(latent_variables,labels)
             #x_fake = np.transpose(x_fake.data.cpu().numpy(), (0, 2, 3, 1))#(n,w,h,c)
             torchvision.utils.save_image(x_fake,sample_dir+'/%d.jpg'%(it_g), nrow=10)
