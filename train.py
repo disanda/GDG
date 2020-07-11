@@ -128,6 +128,7 @@ for ep_ in tqdm.trange(args.epochs):#epoch:n*batch
         if args.dataset_name == 'cifar10' or 'mnist':#数据有标签
             x,c = i
             x = x.to(device)
+            c = c.to(device)
         else:
             x = i
             x = x.to(device)
