@@ -72,8 +72,7 @@ class Discriminator_v1(nn.Module):
     def forward(self, x, c=False):
         # x: (N, x_dim, 32, 32), c: (N, c_dim) or bool
         if type(c)!=type(False):
-           c = c.view(c.size(0), c.size(1), 1, 1) * torch.ones([c.size(0), c.size(1), x.size(2), x.size(3)], dtype=c.dtype, device=c.device)
-           #相当于每一个像素都嵌入了语意表征
+           c = c.view(c.size(0), c.size(1), 1, 1) * torch.ones([c.size(0), c.size(1), x.size(2), x.size(3)], dtype=x.dtype, device=x.device)#相当于每一个像素都嵌入了语意表征
            x = torch.cat([x, c],axis=1)
         y = self.lrelu(self.conv1(x))
         y = self.block1(y)#32->32
