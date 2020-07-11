@@ -119,7 +119,8 @@ z = torch.randn(100, args.z_dim, 1, 1).to(device)  # a fixed noise for sampling
 def sample(z,c=False):
     G.eval()
     z = z.float().to(device)
-    c = c.float().to(device)
+    if c != False:
+        c = c.float().to(device)
     return G(z,c)
 
 for ep_ in tqdm.trange(args.epochs):#epoch:n*batch
