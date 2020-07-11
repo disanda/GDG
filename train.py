@@ -8,7 +8,7 @@ import loss
 import gradient_penalty as gp
 import tqdm
 import data
-import module
+import model.model_v1 as model
 import torchvision
 import os
 
@@ -17,7 +17,7 @@ import os
 # ==============================================================================
 import argparse
 parser = argparse.ArgumentParser(description='the training args')
-parser.add_argument('--z_dim', type=int, default=128)
+#parser.add_argument('--z_dim', type=int, default=128)
 parser.add_argument('--dataset_name',default='mnist')#choices=['cifar10', 'fashion_mnist', 'mnist', 'celeba', 'pose']
 parser.add_argument('--batch_size',type=int,default=32)
 parser.add_argument('--epochs', type=int, default=10)
@@ -34,7 +34,7 @@ args = parser.parse_args()
 
 args.experiment_name = 'mnist-3-CGAN'
 args.lr = 0.0002
-
+args.z_dim = 128
 
 # output_dir
 if args.experiment_name == 'none':
@@ -89,8 +89,8 @@ else:  # cannot use batch normalization with gradient penalty
     d_norm = args.gradient_penalty_d_norm
 
 # networks
-G = module.ConvGenerator(args.z_dim, shape[-1], n_upsamplings=n_G_upsamplings).to(device)
-D = module.ConvDiscriminator(shape[-1], n_downsamplings=n_D_downsamplings, norm=d_norm).to(device)
+G = model.Generator_v1(args.z_dim, shape[-1], n_upsamplings=n_G_upsamplings).to(device)
+D = model.Discriminator_v1(shape[-1], n_downsamplings=n_D_downsamplings, norm=d_norm).to(device)
 print(G)
 print(D)
 
@@ -133,7 +133,7 @@ for ep_ in tqdm.trange(args.epochs):#epoch:n*batch
             x = x.to(device)
 
 #training D
-        z = torch.randn(args.batch_size, args.z_dim, 1, 1).to(device)
+        z = torch.randn(args.batch_size, args.z_dim-10, 1, 1).to(device)
         x_fake = G(z).detach()
         x_real_score = D(x)
         x_fake_score = D(x_fake)
@@ -155,7 +155,7 @@ for ep_ in tqdm.trange(args.epochs):#epoch:n*batch
         if it_d % args.n_d == 0:
             G_loss_dict = train_G(labels)
             #CGAN: (x,c)->G->s
-            z = torch.randn(args.batch_size, args.z_dim, 1, 1).to(device)
+            z = torch.randn(args.batch_size, args.z_dim-10, 1, 1).to(device)
             x_fake = G(z,c)
             x_fake_score = D(x_fake,c)
             G_loss = g_loss_fn(x_fake_score)
