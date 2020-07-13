@@ -46,11 +46,18 @@ if not os.path.exists('./output/%s' % experiment_name):
 with open('./output/%s/setting.txt' % experiment_name, 'w') as f:
     f.write(json.dumps(vars(args), indent=4, separators=(',', ':')))
 
+ckpt_dir = './output/%s/checkpoints' % experiment_name
+save_dir = './output/%s/sample_training' % experiment_name
+if not os.path.exists(ckpt_dir):
+    os.mkdir(ckpt_dir)
+if not os.path.exists(save_dir):
+    os.mkdir(save_dir)
+
+
 # others
 use_gpu = torch.cuda.is_available()
 device = torch.device("cuda" if use_gpu else "cpu")
 c_dim = 10
-
 
 # ==============================================================================
 # =                                   setting                                  =
@@ -60,8 +67,9 @@ c_dim = 10
 train_loader = data.getDataloader(batch_size,use_gpu)
 
 # model
-D = model.DiscriminatorInfoGAN1(x_dim=3, c_dim=c_dim, norm=norm, weight_norm=weight_norm).to(device)
-G = model.GeneratorInfoGAN1(z_dim=z_dim, c_dim=c_dim).to(device)
+import models.ACGAN
+D = model.DiscriminatorACGAN(x_dim=3, c_dim=c_dim, norm=norm, weight_norm=weight_norm).to(device)
+G = model.GeneratorACGAN(z_dim=z_dim, c_dim=c_dim).to(device)
 
 # gan loss function
 d_loss_fn, g_loss_fn = model.get_losses_fn(loss_mode)
@@ -74,24 +82,7 @@ g_optimizer = torch.optim.Adam(G.parameters(), lr=g_learning_rate, betas=(0.5, 0
 # ==============================================================================
 # =                                    train                                   =
 # ==============================================================================
-
-# load checkpoint
-ckpt_dir = './output/%s/checkpoints' % experiment_name
-pylib.mkdir(ckpt_dir)
-
-save_dir = './output/%s/sample_training' % experiment_name
-pylib.mkdir(save_dir)
-
-try:
-    ckpt = torchlib.load_checkpoint(ckpt_dir)
-    start_ep = ckpt['epoch']
-    D.load_state_dict(ckpt['D'])
-    G.load_state_dict(ckpt['G'])
-    d_optimizer.load_state_dict(ckpt['d_optimizer'])
-    g_optimizer.load_state_dict(ckpt['g_optimizer'])
-except:
-    print(' [*] No checkpoint!')
-    start_ep = 0
+start_ep = 0
 
 # writer
 writer = tensorboardX.SummaryWriter('./output/%s/summaries' % experiment_name)
