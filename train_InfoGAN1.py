@@ -1,3 +1,4 @@
+#使用ACGAN的网络完成自监督训练,生成的样本在同标签下完成一样,即model collapse
 import argparse
 import json
 import loss

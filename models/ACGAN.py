@@ -10,17 +10,15 @@ import loss
 # ==============================================================================
 
 class Generator(nn.Module):
-
     def __init__(self, z_dim, c_dim, dim=128):
         super().__init__()
-
+        
         def dconv_bn_relu(in_dim, out_dim, kernel_size=4, stride=2, padding=1, output_padding=0):
             return nn.Sequential(
                 nn.ConvTranspose2d(in_dim, out_dim, kernel_size, stride, padding, output_padding),
                 nn.BatchNorm2d(out_dim),
                 nn.ReLU()
             )
-            
         self.ls = nn.Sequential(
             dconv_bn_relu(z_dim + c_dim, dim * 4, 4, 1, 0, 0),  # (N, dim * 4, 4, 4)
             dconv_bn_relu(dim * 4, dim * 2),  # (N, dim * 2, 8, 8)

@@ -1,21 +1,9 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
-import argparse
-import json
-
-import model
-import numpy as np
-import pylib
-import PIL.Image as Image
-import tensorboardX
 import torch
-import torchvision
-import torchvision.datasets as dsets
-import torchvision.transforms as tforms
+import torch.nn as nn
 import torchlib
-
+import sys 
+sys.path.append("..")
+import loss
 
 # ==============================================================================
 # =                                    param                                   =

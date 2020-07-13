@@ -1,14 +1,3 @@
-import torch
-import torch.nn as nn
-import torchlib
-import sys 
-sys.path.append("..")
-import loss
-
-# ==============================================================================
-# =                                models INFOGAN                                =
-# ==============================================================================
-
 class Generator(nn.Module):
     def __init__(self, z_dim, c_dim, dim=128):
         super().__init__()
@@ -32,9 +21,9 @@ class Generator(nn.Module):
 
 class Discriminator(nn.Module):
     def __init__(self, x_dim, dim=96, norm='none', weight_norm='spectral_norm'):
-        super().__init__()
-        norm_fn = loss._get_norm_fn_2d(norm)
-        weight_norm_fn = loss._get_weight_norm_fn(weight_norm)
+        super(DiscriminatorInfoGAN2, self).__init__()
+        norm_fn = _get_norm_fn_2d(norm)
+        weight_norm_fn = _get_weight_norm_fn(weight_norm)
         def conv_norm_lrelu(in_dim, out_dim, kernel_size=3, stride=1, padding=1):
             return nn.Sequential(
                 weight_norm_fn(nn.Conv2d(in_dim, out_dim, kernel_size, stride, padding)),
@@ -52,7 +41,7 @@ class Discriminator(nn.Module):
             conv_norm_lrelu(dim * 2, dim * 2, kernel_size=1, stride=1, padding=0),
             conv_norm_lrelu(dim * 2, dim * 2, kernel_size=1, stride=1, padding=0),  # (N, dim*2, 6, 6)
             nn.AvgPool2d(kernel_size=6),  # (N, dim*2, 1, 1)
-            loss.Reshape(-1, dim * 2),  # (N, dim*2)
+            torchlib.Reshape(-1, dim * 2),  # (N, dim*2)
             weight_norm_fn(nn.Linear(dim * 2, 1))  # (N, 1)
         )
     def forward(self, x):
@@ -62,9 +51,9 @@ class Discriminator(nn.Module):
 
 class Info(nn.Module):
     def __init__(self, x_dim, c_dim, dim=96, norm='batch_norm', weight_norm='none'):
-        super().__init__()
-        norm_fn = loss._get_norm_fn_2d(norm)
-        weight_norm_fn = loss._get_weight_norm_fn(weight_norm)
+        super(QInfoGAN2, self).__init__()
+        norm_fn = _get_norm_fn_2d(norm)
+        weight_norm_fn = _get_weight_norm_fn(weight_norm)
         def conv_norm_lrelu(in_dim, out_dim, kernel_size=3, stride=1, padding=1):
             return nn.Sequential(
                 weight_norm_fn(nn.Conv2d(in_dim, out_dim, kernel_size, stride, padding)),
@@ -82,7 +71,7 @@ class Info(nn.Module):
             conv_norm_lrelu(dim * 2, dim * 2, kernel_size=1, stride=1, padding=0),
             conv_norm_lrelu(dim * 2, dim * 2, kernel_size=1, stride=1, padding=0),  # (N, dim*2, 6, 6)
             nn.AvgPool2d(kernel_size=6),  # (N, dim*2, 1, 1)
-            loss.Reshape(-1, dim * 2),  # (N, dim*2)
+            torchlib.Reshape(-1, dim * 2),  # (N, dim*2)
             nn.Linear(dim * 2, c_dim)  # (N, c_dim)
         )
     def forward(self, x):
