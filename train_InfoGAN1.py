@@ -73,7 +73,7 @@ Q = model.Info(x_dim=3, c_dim=c_dim, norm='batch_norm', weight_norm='none').to(d
 G = model.Generator(z_dim=z_dim, c_dim=c_dim).to(device)
 
 # gan loss function
-d_loss_fn, g_loss_fn = model.get_losses_fn(loss_mode)
+d_loss_fn, g_loss_fn = loss.get_losses_fn(loss_mode)
 
 # optimizer
 d_optimizer = torch.optim.Adam(D.parameters(), lr=d_learning_rate, betas=(0.5, 0.999))
@@ -113,7 +113,7 @@ for ep in range(start_ep, epoch):
 
         d_x_gan_loss, d_x_f_gan_loss = d_loss_fn(x_gan_logit, x_f_gan_logit)
         d_x_f_c_logit = torch.nn.functional.cross_entropy(x_f_c_logit, c_dense)
-        gp = model.gradient_penalty(D, x, x_f, mode=gp_mode)
+        gp = loss.gradient_penalty(D, x, x_f, mode=gp_mode)
         d_loss = d_x_gan_loss + d_x_f_gan_loss + gp * gp_coef
         d_q_loss = d_x_f_c_logit
 
