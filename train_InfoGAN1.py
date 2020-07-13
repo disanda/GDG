@@ -77,7 +77,7 @@ d_loss_fn, g_loss_fn = loss.get_losses_fn(loss_mode)
 
 # optimizer
 d_optimizer = torch.optim.Adam(D.parameters(), lr=d_learning_rate, betas=(0.5, 0.999))
-q_optimizer = torch.optim.Adam(Q.parameters(), lr=q_learning_rate, betas=(0.5, 0.999))
+q_optimizer = torch.optim.Adam(Q.parameters(), lr=0.001, betas=(0.5, 0.999))
 g_optimizer = torch.optim.Adam(G.parameters(), lr=g_learning_rate, betas=(0.5, 0.999))
 
 
