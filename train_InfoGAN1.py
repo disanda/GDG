@@ -19,7 +19,8 @@ import data
 # command line arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('--weight_norm', dest='weight_norm', choices=['none', 'spectral_norm', 'weight_norm'], default='spectral_norm')
-parser.add_argument('--loss_mode',choices=['gan', 'lsgan', 'wgan', 'hinge_v1', 'hinge_v2'], default='hinge_v2')
+parser.add_argument('--loss',choices=['gan', 'lsgan', 'wgan', 'hinge_v1', 'hinge_v2'], default='hinge_v2')
+parser.add_argument('--gp',choices=['none', 'dragan', 'wgan-gp'], default='dragan')
 parser.add_argument('--experiment_name', dest='experiment_name', default='infoGAN1_')
 
 # parse arguments
@@ -32,12 +33,12 @@ d_learning_rate = 0.0002
 g_learning_rate = 0.001
 n_d = 1
 # loss
-loss_mode = args.loss_mode
-gp_mode = 'none' #choices=['none', 'dragan', 'wgan-gp'], default='none']
+loss_mode = args.loss
+gp_mode = args.gp #choices=['none', 'dragan', 'wgan-gp'], default='none']
 gp_coef = 1.0 
 norm = 'none' #['none', 'batch_norm', 'instance_norm']
 # ohters
-experiment_name = args.experiment_name+loss_mode
+experiment_name = args.experiment_name+loss_mode+'_'+gp_mode
 
 # save settings
 if not os.path.exists('./output/%s' % experiment_name):
