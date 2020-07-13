@@ -108,7 +108,7 @@ for ep in range(start_ep, epoch):
 
         d_x_gan_loss, d_x_f_gan_loss = d_loss_fn(x_gan_logit, x_f_gan_logit)
         d_x_f_c_logit = torch.nn.functional.cross_entropy(x_f_c_logit, c_dense)
-        gp = model.gradient_penalty(D, x, x_f, mode=gp_mode)
+        gp = loss.gradient_penalty(D, x, x_f, mode=gp_mode)
         d_loss = d_x_gan_loss + d_x_f_gan_loss + gp * gp_coef + d_x_f_c_logit
 
         D.zero_grad()
