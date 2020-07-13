@@ -68,7 +68,7 @@ train_loader = data.getDataloader(batch_size,use_gpu)
 
 # model
 import models.INFOGAN as model
-D = model.Discriminator(x_dim=3, norm=norm, weight_norm=weight_norm).to(device)
+D = model.Discriminator(x_dim=3, norm=norm, weight_norm=args.weight_norm).to(device)
 Q = model.Generator(x_dim=3, c_dim=c_dim, norm='batch_norm', weight_norm='none').to(device)
 G = model.Info(z_dim=z_dim, c_dim=c_dim).to(device)
 
