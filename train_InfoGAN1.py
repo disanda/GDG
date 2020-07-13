@@ -20,7 +20,7 @@ import data
 parser = argparse.ArgumentParser()
 # training
 parser.add_argument('--weight_norm', dest='weight_norm', choices=['none', 'spectral_norm', 'weight_norm'], default='spectral_norm')
-# others
+parser.add_argument('--loss_mode',choices=['gan', 'lsgan', 'wgan', 'hinge_v1', 'hinge_v2'], default='hinge_v1')
 parser.add_argument('--experiment_name', dest='experiment_name', default='infoGANv1_')
 
 # parse arguments
@@ -33,7 +33,7 @@ d_learning_rate = 0.0002
 g_learning_rate = 0.001
 n_d = 1
 # loss
-loss_mode = 'hinge_v2' #choices=['gan', 'lsgan', 'wgan', 'hinge_v1', 'hinge_v2']
+loss_mode = args.loss_mode
 gp_mode = 'none' #choices=['none', 'dragan', 'wgan-gp'], default='none']
 gp_coef = 1.0 
 norm = 'none' #['none', 'batch_norm', 'instance_norm']
@@ -154,4 +154,4 @@ for ep in range(start_ep, epoch):
                               'G': G.state_dict(),
                               'd_optimizer': d_optimizer.state_dict(),
                               'g_optimizer': g_optimizer.state_dict()},
-                             '%s/Epoch_(%d).ckpt' % (ckpt_dir, ep + 1),)
+                             '%s/Epoch_(%d).ckpt' % (ckpt_dir, ep + 1))
