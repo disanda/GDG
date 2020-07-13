@@ -22,11 +22,12 @@ parser = argparse.ArgumentParser()
 # training
 parser.add_argument('--weight_norm', dest='weight_norm', choices=['none', 'spectral_norm', 'weight_norm'], default='spectral_norm')
 parser.add_argument('--loss_mode',choices=['gan', 'lsgan', 'wgan', 'hinge_v1', 'hinge_v2'], default='hinge_v1')
-parser.add_argument('--experiment_name', dest='experiment_name', default='infoGANv1_')
-
+parser.add_argument('--experiment_name', dest='experiment_name', default='infoGANPre_')
+parser.add_argument('--gp_mode',choices=['none', 'dragan', 'wgan-gp'], default='dragan')
 # parse arguments
 args = parser.parse_args()
-# pra
+
+# pre
 z_dim = 100
 epoch = 50
 batch_size = 64
@@ -35,11 +36,11 @@ g_learning_rate = 0.001
 n_d = 1
 # loss
 loss_mode = args.loss_mode
-gp_mode = 'none' #choices=['none', 'dragan', 'wgan-gp'], default='none']
+gp_mode = args.gp_mode #choices=['none', 'dragan', 'wgan-gp'], default='none'
 gp_coef = 1.0 
 norm = 'none' #['none', 'batch_norm', 'instance_norm']
 # ohters
-experiment_name = args.experiment_name+loss_mode
+experiment_name = args.experiment_name+loss_mode+'_gp:'+gp_mode
 
 # save settings
 if not os.path.exists('./output/%s' % experiment_name):
