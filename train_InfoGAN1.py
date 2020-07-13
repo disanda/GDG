@@ -68,8 +68,8 @@ train_loader = data.getDataloader(batch_size,use_gpu)
 
 # model
 import models.ACGAN as model
-D = model.DiscriminatorACGAN(x_dim=3, c_dim=c_dim, norm=norm, weight_norm=weight_norm).to(device)
-G = model.GeneratorACGAN(z_dim=z_dim, c_dim=c_dim).to(device)
+D = model.Discriminator(x_dim=3, c_dim=c_dim, norm=norm, weight_norm=weight_norm).to(device)
+G = model.Generator(z_dim=z_dim, c_dim=c_dim).to(device)
 
 # gan loss function
 d_loss_fn, g_loss_fn = model.get_losses_fn(loss_mode)
