@@ -36,7 +36,7 @@ gp_mode = args.gp
 gp_coef = 1.0 
 norm = 'none' #['none', 'batch_norm', 'instance_norm']
 # ohters
-experiment_name = args.experiment_name+loss_mode
+experiment_name = args.experiment_name+loss_mode+gp_mode
 
 # save settings
 if not os.path.exists('./output/%s' % experiment_name):
