@@ -12,7 +12,7 @@ import loss
 class Generator(nn.Module):
 
     def __init__(self, z_dim, c_dim, dim=128):
-        super(GeneratorCGAN, self).__init__()
+        super().__init__()
 
         def dconv_bn_relu(in_dim, out_dim, kernel_size=4, stride=2, padding=1, output_padding=0):
             return nn.Sequential(
@@ -38,7 +38,7 @@ class Generator(nn.Module):
 class Discriminator(nn.Module):
 
     def __init__(self, x_dim, c_dim, dim=96, norm='none', weight_norm='spectral_norm'):
-        super(DiscriminatorACGAN, self).__init__()
+        super().__init__()
 
         norm_fn = _get_norm_fn_2d(norm)
         weight_norm_fn = _get_weight_norm_fn(weight_norm)
