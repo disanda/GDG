@@ -154,5 +154,4 @@ for ep in range(start_ep, epoch):
                               'G': G.state_dict(),
                               'd_optimizer': d_optimizer.state_dict(),
                               'g_optimizer': g_optimizer.state_dict()},
-                             '%s/Epoch_(%d).ckpt' % (ckpt_dir, ep + 1),
-                             max_keep=2)
+                             '%s/Epoch_(%d).ckpt' % (ckpt_dir, ep + 1),)
