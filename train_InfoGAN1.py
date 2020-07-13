@@ -20,7 +20,7 @@ import data
 parser = argparse.ArgumentParser()
 parser.add_argument('--weight_norm', dest='weight_norm', choices=['none', 'spectral_norm', 'weight_norm'], default='spectral_norm')
 parser.add_argument('--loss_mode',choices=['gan', 'lsgan', 'wgan', 'hinge_v1', 'hinge_v2'], default='hinge_v2')
-parser.add_argument('--experiment_name', dest='experiment_name', default='infoGAN2_')
+parser.add_argument('--experiment_name', dest='experiment_name', default='infoGAN1_')
 
 # parse arguments
 args = parser.parse_args()
