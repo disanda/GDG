@@ -1,4 +1,3 @@
-#使用ACGAN的网络完成自监督训练,生成的样本在同标签下完成一样,即model collapse
 import argparse
 import json
 import loss
@@ -19,10 +18,9 @@ import data
 
 # command line arguments
 parser = argparse.ArgumentParser()
-# training
 parser.add_argument('--weight_norm', dest='weight_norm', choices=['none', 'spectral_norm', 'weight_norm'], default='spectral_norm')
-parser.add_argument('--loss_mode',choices=['gan', 'lsgan', 'wgan', 'hinge_v1', 'hinge_v2'], default='hinge_v1')
-parser.add_argument('--experiment_name', dest='experiment_name', default='infoGANv1_')
+parser.add_argument('--loss_mode',choices=['gan', 'lsgan', 'wgan', 'hinge_v1', 'hinge_v2'], default='hinge_v2')
+parser.add_argument('--experiment_name', dest='experiment_name', default='infoGAN2_')
 
 # parse arguments
 args = parser.parse_args()
@@ -60,6 +58,7 @@ use_gpu = torch.cuda.is_available()
 device = torch.device("cuda" if use_gpu else "cpu")
 c_dim = 10
 
+
 # ==============================================================================
 # =                                   setting                                  =
 # ==============================================================================
@@ -68,21 +67,24 @@ c_dim = 10
 train_loader = data.getDataloader(batch_size,use_gpu)
 
 # model
-import models.ACGAN as model
-D = model.Discriminator(x_dim=3, c_dim=c_dim, norm=norm, weight_norm=args.weight_norm).to(device)
-G = model.Generator(z_dim=z_dim, c_dim=c_dim).to(device)
+import models.infoGAN as model
+D = model.Discriminator(x_dim=3, norm=norm, weight_norm=weight_norm).to(device)
+Q = model.Generator(x_dim=3, c_dim=c_dim, norm='batch_norm', weight_norm='none').to(device)
+G = model.Info(z_dim=z_dim, c_dim=c_dim).to(device)
 
 # gan loss function
-d_loss_fn, g_loss_fn = loss.get_losses_fn(loss_mode)
+d_loss_fn, g_loss_fn = model.get_losses_fn(loss_mode)
 
 # optimizer
 d_optimizer = torch.optim.Adam(D.parameters(), lr=d_learning_rate, betas=(0.5, 0.999))
+q_optimizer = torch.optim.Adam(Q.parameters(), lr=q_learning_rate, betas=(0.5, 0.999))
 g_optimizer = torch.optim.Adam(G.parameters(), lr=g_learning_rate, betas=(0.5, 0.999))
 
 
 # ==============================================================================
 # =                                    train                                   =
 # ==============================================================================
+
 start_ep = 0
 
 # writer
@@ -96,28 +98,35 @@ for ep in range(start_ep, epoch):
         step = ep * len(train_loader) + i + 1
         D.train()
         G.train()
+        Q.train()
 
-        # train D
+        # train D and Q
         x = x.to(device)
         c_dense = torch.tensor(np.random.randint(c_dim, size=[batch_size])).to(device)
         z = torch.randn(batch_size, z_dim).to(device)
         c = torch.tensor(np.eye(c_dim)[c_dense.cpu().numpy()], dtype=z.dtype).to(device)
 
         x_f = G(z, c).detach()
-        x_gan_logit, _ = D(x)
-        x_f_gan_logit, x_f_c_logit = D(x_f)
+        x_gan_logit = D(x)
+        x_f_gan_logit = D(x_f)
+        x_f_c_logit = Q(x_f)
 
         d_x_gan_loss, d_x_f_gan_loss = d_loss_fn(x_gan_logit, x_f_gan_logit)
         d_x_f_c_logit = torch.nn.functional.cross_entropy(x_f_c_logit, c_dense)
-        gp = loss.gradient_penalty(D, x, x_f, mode=gp_mode)
-        d_loss = d_x_gan_loss + d_x_f_gan_loss + gp * gp_coef + d_x_f_c_logit
+        gp = model.gradient_penalty(D, x, x_f, mode=gp_mode)
+        d_loss = d_x_gan_loss + d_x_f_gan_loss + gp * gp_coef
+        d_q_loss = d_x_f_c_logit
 
         D.zero_grad()
         d_loss.backward()
         d_optimizer.step()
 
+        Q.zero_grad()
+        d_q_loss.backward()
+        q_optimizer.step()
+
         writer.add_scalar('D/d_gan_loss', (d_x_gan_loss + d_x_f_gan_loss).data.cpu().numpy(), global_step=step)
-        writer.add_scalar('D/d_q_loss', d_x_f_c_logit.data.cpu().numpy(), global_step=step)
+        writer.add_scalar('D/d_q_loss', d_q_loss.data.cpu().numpy(), global_step=step)
         writer.add_scalar('D/gp', gp.data.cpu().numpy(), global_step=step)
 
         # train G
@@ -127,7 +136,8 @@ for ep in range(start_ep, epoch):
             z = torch.randn(batch_size, z_dim).to(device)
 
             x_f = G(z, c)
-            x_f_gan_logit, x_f_c_logit = D(x_f)
+            x_f_gan_logit = D(x_f)
+            x_f_c_logit = Q(x_f)
 
             g_gan_loss = g_loss_fn(x_f_gan_logit)
             d_x_f_c_logit = torch.nn.functional.cross_entropy(x_f_c_logit, c_dense)
@@ -149,10 +159,12 @@ for ep in range(start_ep, epoch):
             G.eval()
             x_f_sample = (G(z_sample, c_sample) + 1) / 2.0
             torchvision.utils.save_image(x_f_sample, '%s/Epoch_(%d)_(%dof%d).jpg' % (save_dir, ep, i + 1, len(train_loader)), nrow=10)
-            
-    torch.save({'epoch': ep + 1,
+
+    torchlib.save_checkpoint({'epoch': ep + 1,
                               'D': D.state_dict(),
+                              'Q': Q.state_dict(),
                               'G': G.state_dict(),
                               'd_optimizer': d_optimizer.state_dict(),
+                              'q_optimizer': q_optimizer.state_dict(),
                               'g_optimizer': g_optimizer.state_dict()},
                              '%s/Epoch_(%d).ckpt' % (ckpt_dir, ep + 1))
