@@ -88,6 +88,7 @@ if __name__ == "__main__":
         train(epoch)
         test(epoch)
         with torch.no_grad():
-            sample = torch.randn(64, 20).to(device)
-            sample = model.Decode(sample).cpu()
+            mu = torch.randn(64, 20).to(device)
+            sigma = torch.randn(64,20).to(device)
+            sample = model.Decode(mu,sigma).cpu()
             save_image(sample.view(64, 1, 28, 28),path_dir+'/sample_' + str(epoch) + '.png')
