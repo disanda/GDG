@@ -8,7 +8,7 @@ class Encode(nn.Module):
         self.fc21 = nn.Linear(400, 20)
         self.fc22 = nn.Linear(400, 20)
     def forward(self, x):
-        h1 = F.relu(self.fc1(x))
+        h1 = F.relu(self.fc1(x.view(-1, 784)))
         mu, logvar = self.fc21(h1), self.fc22(h1)
         return mu, logvar
 
