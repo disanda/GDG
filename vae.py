@@ -57,7 +57,7 @@ def train(epoch):
         #-----------------training Decode---------------
         optimizerD.zero_grad()
         x_fake = Decode(mu, logvar)
-        loss_BCE = F.binary_cross_entropy(x_fake, x.view(-1, 784), reduction='sum')
+        loss_BCE = F.binary_cross_entropy(x_fake, data.view(-1, 784), reduction='sum')
         loss_BCE.backward()
         train_loss_BCE += loss_BCE.item()
         optimizerD.step()
