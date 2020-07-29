@@ -7,7 +7,7 @@ from torch.nn import functional as F
 from torchvision import datasets, transforms
 from torchvision.utils import save_image
 import models.BF_v1 as model
-
+import os
 #-------------setting---------------
 parser = argparse.ArgumentParser(description='VAE MNIST Example')
 parser.add_argument('--batch-size', type=int, default=128, metavar='N',help='input batch size for training (default: 128)')
@@ -65,8 +65,9 @@ def train(epoch):
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss_KLD: {:.6f}\tLoss_BCE: {:.6f}'.format(epoch, batch_idx * len(data), len(train_loader.dataset),100. * batch_idx / len(train_loader),loss_KLD.item() / len(data),loss_BCE.item() / len(data)))
     print('====> Epoch: {} Average loss KLD: {:.4f}--Average loss BCE: {:.4f}'.format(epoch, train_loss_KLD / len(train_loader.dataset) , train_loss_BCE / len(train_loader.dataset)))
 
-if not os.path.exists('results'):
-    os.mkdir('results')
+path_dir='results_1'
+if not os.path.exists(path_dir):
+    os.mkdir(path_dir)
 
 def test(epoch):
     Decode.eval()
@@ -79,7 +80,7 @@ def test(epoch):
             if i == 0:
                 n = min(data.size(0), 8)
                 comparison = torch.cat([data[:n],recon_batch.view(args.batch_size, 1, 28, 28)[:n]])
-                save_image(comparison.cpu(),'results/reconstruction_' + str(epoch) + '.png', nrow=n)
+                save_image(comparison.cpu(),path_dir+'/reconstruction_' + str(epoch) + '.png', nrow=n)
     test_loss /= len(test_loader.dataset)
     print('====> Test set loss: {:.4f}'.format(test_loss))
 
@@ -90,4 +91,4 @@ if __name__ == "__main__":
         with torch.no_grad():
             sample = torch.randn(64, 20).to(device)
             sample = model.decode(sample).cpu()
-            save_image(sample.view(64, 1, 28, 28),'results/sample_' + str(epoch) + '.png')
+            save_image(sample.view(64, 1, 28, 28),path_dir+'/sample_' + str(epoch) + '.png')
