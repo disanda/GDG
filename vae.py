@@ -51,7 +51,7 @@ def train(epoch):
         optimizerE.zero_grad()
         mu, logvar = Encode(data)
         loss_KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
-        loss_KLD.backward()
+        loss_KLD.backward(retain_graph=True)
         train_loss_KLD += loss_KLD.item()
         optimizerE.step()
         #-----------------training Decode---------------
