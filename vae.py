@@ -57,7 +57,7 @@ def train(epoch):
         #-----------------training Decode---------------
         optimizerD.zero_grad()
         x_fake = Decode(mu, logvar)
-        loss_BCE = F.binary_cross_entropy(recon_x, x.view(-1, 784), reduction='sum')
+        loss_BCE = F.binary_cross_entropy(x_fake, x.view(-1, 784), reduction='sum')
         loss_BCE.backward()
         train_loss_BCE += loss_BCE.item()
         optimizerD.step()
@@ -70,19 +70,17 @@ if not os.path.exists(path_dir):
     os.mkdir(path_dir)
 
 def test(epoch):
+    Encode.eval()
     Decode.eval()
-    test_loss = 0
     with torch.no_grad():
         for i, (data, _) in enumerate(test_loader):
             data = data.to(device)
-            recon_batch, mu, logvar = model(data)
-            test_loss += loss_function(recon_batch, data, mu, logvar).item()
+            mu, logvar = Encode(data)
+            recon_x = Decode(mu, logvar)
             if i == 0:
                 n = min(data.size(0), 8)
                 comparison = torch.cat([data[:n],recon_batch.view(args.batch_size, 1, 28, 28)[:n]])
                 save_image(comparison.cpu(),path_dir+'/reconstruction_' + str(epoch) + '.png', nrow=n)
-    test_loss /= len(test_loader.dataset)
-    print('====> Test set loss: {:.4f}'.format(test_loss))
 
 if __name__ == "__main__":
     for epoch in range(1, args.epochs + 1):
