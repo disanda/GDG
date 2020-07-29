@@ -80,7 +80,7 @@ def test(epoch):
             recon_x = Decode(mu, logvar)
             if i == 0:
                 n = min(data.size(0), 8)
-                comparison = torch.cat([data[:n],recon_batch.view(args.batch_size, 1, 28, 28)[:n]])
+                comparison = torch.cat([data[:n],recon_x.view(args.batch_size, 1, 28, 28)[:n]])
                 save_image(comparison.cpu(),path_dir+'/reconstruction_' + str(epoch) + '.png', nrow=n)
 
 if __name__ == "__main__":
