@@ -1,4 +1,5 @@
 from torch.nn import functional as F
+import torch.nn as nn
 
 class Encode(nn.Module):
     def __init__(self):
