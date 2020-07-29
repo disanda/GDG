@@ -51,16 +51,17 @@ def train(epoch):
         optimizerE.zero_grad()
         mu, logvar = Encode(data)
         loss_KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
-        loss_KLD.backward(retain_graph=True)
+        loss_KLD.backward()
         train_loss_KLD += loss_KLD.item()
         optimizerE.step()
         #-----------------training Decode---------------
         optimizerD.zero_grad()
-        x_fake = Decode(mu, logvar)
+        x_fake = Decode(mu.detach(), logvar.detach())
         loss_BCE = F.binary_cross_entropy(x_fake, data.view(-1, 784), reduction='sum')
         loss_BCE.backward()
         train_loss_BCE += loss_BCE.item()
         optimizerD.step()
+        #------------------save--------------------------
         if batch_idx % args.log_interval == 0:
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss_KLD: {:.6f}\tLoss_BCE: {:.6f}'.format(epoch, batch_idx * len(data), len(train_loader.dataset),100. * batch_idx / len(train_loader),loss_KLD.item() / len(data),loss_BCE.item() / len(data)))
     print('====> Epoch: {} Average loss KLD: {:.4f}--Average loss BCE: {:.4f}'.format(epoch, train_loss_KLD / len(train_loader.dataset) , train_loss_BCE / len(train_loader.dataset)))
